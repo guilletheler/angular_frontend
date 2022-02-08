@@ -1,0 +1,17 @@
+  <div class="login-card">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <h2>Frontend Log In</h2>
+      <p-messages severity="error" *ngIf="loginInvalid">
+        <ng-template pTemplate>
+          The username and password were not recognized
+        </ng-template>
+      </p-messages>
+      <span class="p-float-label">
+        <input pInputText placeholder="Email" formControlName="username" class="login-fields" required>
+      </span>
+      <span class="p-float-label">
+        <input pInputText type="password" placeholder="Password" formControlName="password" autocomplete="on" class="login-fields" required>
+      </span>
+      <button pButton color="primary" class="login-button">Ingresar</button>
+    </form>
+  </div>
