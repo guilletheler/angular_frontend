@@ -57,6 +57,19 @@ export class UsuariosComponent implements OnInit {
   }
 
   async openNew() {
+
+    this.createUser();
+
+    this.dispRoles = [];
+
+    console.log('los roles para el usuario son: ' + this.user.roles);
+    for (let i = 0; i < this.allRoles.length; i++) {
+      if (!this.user.roles.includes(this.allRoles[i])) {
+        console.log('agregando para elegir rol: ' + this.allRoles[i]);
+        this.dispRoles.push(this.allRoles[i]);
+      }
+    }
+
     this.submitted = false;
     this.userDialog = true;
   }
@@ -151,10 +164,13 @@ export class UsuariosComponent implements OnInit {
           },
           error: (err: HttpErrorResponse) => {
             console.log('Error creando usuario' + err.message);
+            this.messageService.add({ severity: 'error', summary: 'Error al crear', detail: err.error, life: 3000 });
           }
         });
       }
 
+    } else {
+      this.messageService.add({ severity: 'error', summary: 'Error al crear', detail: 'El nombre no puede ser vacio', life: 3000 });
     }
   }
   async createUser() {
