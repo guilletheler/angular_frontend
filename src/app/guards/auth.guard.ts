@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Router, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { MessageService } from 'primeng/api';
 
 import { AuthenticationService } from '../services/authentication.service';
 
@@ -7,7 +8,8 @@ import { AuthenticationService } from '../services/authentication.service';
 export class AuthGuard implements CanActivate {
   constructor(
     private router: Router,
-    private authenticationService: AuthenticationService
+    private authenticationService: AuthenticationService,
+    private messageService: MessageService
   ) { }
 
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
@@ -34,9 +36,10 @@ export class AuthGuard implements CanActivate {
         }
 
         if (!ret) {
-          console.log('acceso insuficiente del usuario ' + user.nombre + ', redirigiendo a /');
+          // console.log('acceso insuficiente del usuario ' + user.nombre + ', redirigiendo a /');
           // role not authorised so redirect to home page
           this.router.navigate(['/']);
+          this.messageService.add({ severity: 'error', summary: 'Error de permisos', detail: 'Permisos insuficientes para el usuario', life: 3000 });
           ret = false;
         }
       }
