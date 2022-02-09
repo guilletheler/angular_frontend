@@ -9,8 +9,6 @@
     </ng-template>
 
     <ng-template pTemplate="right">
-      <p-fileUpload mode="basic" accept="image/*" [maxFileSize]="1000000" label="Import" chooseLabel="Import"
-        class="mr-2 inline-block"></p-fileUpload>
       <button pButton pRipple label="Export" icon="pi pi-upload" class="p-button-help" (click)="export()"></button>
     </ng-template>
   </p-toolbar>
@@ -18,12 +16,6 @@
   <p-table #usuariosTable [value]="users" [lazy]="true" (onLazyLoad)="loadUsers($event)" responsiveLayout="scroll" dataKey="id"
     [selection]="selectedUsers" [paginator]="true" [rows]="10" [totalRecords]="totalRecords" [loading]="loading"
     [globalFilterFields]="['id','codigo', 'nombre', 'username']">
-
-    <ng-template pTemplate="caption">
-      <div class="flex">
-          <button type="button" pButton pRipple icon="pi pi-file-excel" (click)="exportExcel()" class="p-button-success mr-2"  pTooltip="XLS" tooltipPosition="bottom"></button>
-      </div>
-  </ng-template>
 
     <ng-template pTemplate="header">
       <tr>
