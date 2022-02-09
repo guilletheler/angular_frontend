@@ -23,13 +23,13 @@ export class AuthenticationService {
   public get userValue(): User {
     let tmp = JSON.parse(localStorage.getItem('user') || '{}');
 
-    console.log('userValue: ' + JSON.stringify(tmp));
+    // console.log('userValue: ' + JSON.stringify(tmp));
 
     return tmp;
   }
 
   public get logged(): boolean {
-    if(this.userValue && this.userValue.token) {
+    if (this.userValue && this.userValue.token) {
       // console.log('El usuario no es nulo ' + this.userValue.nombre + ' y tiene token ' + this.userValue.token + ', autenticado = true');
       return true;
     }
@@ -44,7 +44,7 @@ export class AuthenticationService {
 
     var usuario = await lastValueFrom(this.http.post<User>(`${environment.apiUrl}/users/authenticate`, { username, password }));
 
-    if(usuario) {
+    if (usuario) {
       localStorage.setItem('user', JSON.stringify(usuario));
       console.log('login completado para ' + usuario.username + ' con token ' + usuario.token);
       this.eventService.fireLogEvent(true);

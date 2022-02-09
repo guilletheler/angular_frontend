@@ -1,10 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ConfirmationService, FilterMetadata, LazyLoadEvent, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { lastValueFrom } from 'rxjs';
 import { User } from 'src/app/models/user';
 import { UsuariosService } from 'src/app/services/usuarios.service';
+import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'app-usuarios',
@@ -36,6 +37,8 @@ export class UsuariosComponent implements OnInit {
   allRoles: string[] = [];
 
   dispRoles: string[] = [];
+
+  @ViewChild('usuariosTable') table: Table = Object();
 
   constructor(
     private usuariosService: UsuariosService,
@@ -217,4 +220,27 @@ export class UsuariosComponent implements OnInit {
     table.clear();
   }
 
+  export() {
+    this.usuariosService.downloadExcel(this.table.createLazyLoadMetadata());
+  }
+
+  exportExcel() {
+    import("xlsx").then(xlsx => {
+      const worksheet = xlsx.utils.json_to_sheet(this.users);
+      delete(worksheet['07']);
+      delete(worksheet['06']);
+      const workbook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+      const excelBuffer: any = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
+      this.saveAsExcelFile(excelBuffer, "usuarios");
+    });
+  }
+
+  saveAsExcelFile(buffer: any, fileName: string): void {
+    let EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+    let EXCEL_EXTENSION = '.xlsx';
+    const data: Blob = new Blob([buffer], {
+      type: EXCEL_TYPE
+    });
+    FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
+  }
 }

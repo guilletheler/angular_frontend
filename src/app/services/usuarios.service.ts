@@ -13,7 +13,7 @@ export class UsuariosService {
 
   constructor(
     private http: HttpClient
-    ) { }
+  ) { }
 
   getAll(): Observable<User[]> {
     return this.http.get<User[]>(`${environment.apiUrl}/users/`);
@@ -26,7 +26,7 @@ export class UsuariosService {
     // console.log(paginatorJson);
 
     const params = new HttpParams()
-    .set('paginator', paginatorJson);
+      .set('paginator', paginatorJson);
 
     return this.http.get<PageDto<User>>(`${environment.apiUrl}/users/`, { params });
   }
@@ -48,6 +48,36 @@ export class UsuariosService {
   }
 
   delete(user: User): Observable<boolean> {
-    return this.http.delete<boolean>(`${environment.apiUrl}/users/${user.id}`);
+    return this.
+      http.delete<boolean>(`${environment.apiUrl}/users/${user.id}`);
   }
+
+  downloadExcel(paginator: LazyLoadEvent) {
+
+    const paginatorJson = JSON.stringify(paginator);
+
+    const params = new HttpParams()
+      .set('paginator', paginatorJson);
+
+    this.http.get(`${environment.apiUrl}/users/exportList`, { params: params, responseType: 'arraybuffer' })
+      .subscribe(response => this.downLoadFile(response));
+
+  }
+
+  /**
+     * Method is use to download file.
+     * @param data - Array Buffer data
+     * @param type - type of the document.
+     */
+  downLoadFile(data: any) {
+    let filename: string = 'usuarios.xlsx';
+    let downloadLink = document.createElement('a');
+    let blob = new Blob([data], { type: 'application/ms-excel' });
+    downloadLink.href = window.URL.createObjectURL(blob);
+    downloadLink.setAttribute('download', filename);
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+  }
+
+
 }
