@@ -38,13 +38,16 @@ export class AuthGuard implements CanActivate {
         if (!ret) {
           // console.log('acceso insuficiente del usuario ' + user.nombre + ', redirigiendo a /');
           // role not authorised so redirect to home page
+          this.messageService.add({
+            severity: 'warn', summary: 'Permisos insuficientes',
+            detail: 'Permisos insuficientes para ingresar a ' + (route.url.toString().toUpperCase()), life: 3000
+          });
           this.router.navigate(['/']);
-          this.messageService.add({ severity: 'error', summary: 'Error de permisos', detail: 'Permisos insuficientes para el usuario', life: 3000 });
           ret = false;
         }
       }
     } else {
-      console.log('usuario no logueado, dirigiendo a / desde -' + route.url.toString() + '-');
+      console.log('usuario no logueado, dirigiendo a / desde -' + (route.url.toString().toUpperCase()) + '-');
       // not logged in so redirect to login page with the return url
       this.router.navigate(['/login'], { queryParams: { returnUrl: state.url } });
       ret = false;

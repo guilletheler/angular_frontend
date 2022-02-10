@@ -1,11 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ConfirmationService, FilterMetadata, LazyLoadEvent, MessageService } from 'primeng/api';
+import * as FileSaver from 'file-saver';
+import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { lastValueFrom } from 'rxjs';
 import { User } from 'src/app/models/user';
+import { AuthenticationService } from 'src/app/services/authentication.service';
 import { UsuariosService } from 'src/app/services/usuarios.service';
-import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'app-usuarios',
@@ -38,10 +39,13 @@ export class UsuariosComponent implements OnInit {
 
   dispRoles: string[] = [];
 
+  adminUser: boolean = false;
+
   @ViewChild('usuariosTable') table: Table = Object();
 
   constructor(
     private usuariosService: UsuariosService,
+    private authenticationService: AuthenticationService,
     private confirmationService: ConfirmationService,
     private messageService: MessageService
   ) { }
@@ -57,24 +61,17 @@ export class UsuariosComponent implements OnInit {
         }
       });
     }, 1000);
+
+    this.adminUser = this.authenticationService.isAdmin;
   }
 
   async openNew() {
 
     this.createUser();
 
-    this.dispRoles = [];
-
-    console.log('los roles para el usuario son: ' + this.user.roles);
-    for (let i = 0; i < this.allRoles.length; i++) {
-      if (!this.user.roles.includes(this.allRoles[i])) {
-        console.log('agregando para elegir rol: ' + this.allRoles[i]);
-        this.dispRoles.push(this.allRoles[i]);
-      }
-    }
-
     this.submitted = false;
-    this.userDialog = true;
+
+    this.editUser(this.user);
   }
 
   deleteSelectedUsers() {
@@ -143,11 +140,9 @@ export class UsuariosComponent implements OnInit {
       if (this.user.id > 0) {
         this.usuariosService.update(this.user).subscribe({
           next: (data) => {
-            this.users[this.findIndexById(this.user.id)] = data;
-            this.users = [...this.users];
-            this.userDialog = false;
-            this.createUser();
-            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Updated', life: 3000 });
+            // this.users[this.findIndexById(this.user.id)] = data;
+            // this.users = [...this.users];
+            this.saveSucceful('Usuario Actualizado');
           },
           error: (err: HttpErrorResponse) => {
             console.log('Error actualizando usuario' + err.error);
@@ -159,11 +154,9 @@ export class UsuariosComponent implements OnInit {
 
         this.usuariosService.create(this.user).subscribe({
           next: (data) => {
-            this.users.push(data);
-            this.users = [...this.users];
-            this.userDialog = false;
-            this.createUser();
-            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'User Created', life: 3000 });
+            // this.users.push(data);
+            // this.users = [...this.users];
+            this.saveSucceful('Usuario Creado');
           },
           error: (err: HttpErrorResponse) => {
             console.log('Error creando usuario' + err.message);
@@ -176,9 +169,18 @@ export class UsuariosComponent implements OnInit {
       this.messageService.add({ severity: 'error', summary: 'Error al crear', detail: 'El nombre no puede ser vacio', life: 3000 });
     }
   }
+
+  saveSucceful(saveMessage: string) {
+    this.loadUsers(this.table.createLazyLoadMetadata());
+    this.messageService.add({ severity: 'success', summary: 'Exito', detail: saveMessage, life: 3000 });
+    this.userDialog = false;
+    this.createUser();
+  }
+
   async createUser() {
     this.user = new User();
     this.user.codigo = await this.createCodigo();
+    this.user.roles = ['USER'];
   }
 
   findIndexById(id: number): number {
@@ -227,8 +229,8 @@ export class UsuariosComponent implements OnInit {
   exportExcel() {
     import("xlsx").then(xlsx => {
       const worksheet = xlsx.utils.json_to_sheet(this.users);
-      delete(worksheet['07']);
-      delete(worksheet['06']);
+      delete (worksheet['07']);
+      delete (worksheet['06']);
       const workbook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
       const excelBuffer: any = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
       this.saveAsExcelFile(excelBuffer, "usuarios");

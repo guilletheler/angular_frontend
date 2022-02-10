@@ -11,14 +11,14 @@
     </ng-template>
   </p-toolbar>
 
-  <p-table #usuariosTable [value]="users" [lazy]="true" (onLazyLoad)="loadUsers($event)" responsiveLayout="scroll" dataKey="id"
-    [selection]="selectedUsers" [paginator]="true" [rows]="10" [totalRecords]="totalRecords" [loading]="loading"
-    [globalFilterFields]="['id','codigo', 'nombre', 'username']">
+  <p-table #usuariosTable [value]="users" [lazy]="true" (onLazyLoad)="loadUsers($event)" responsiveLayout="scroll"
+    dataKey="id" [selection]="selectedUsers" [paginator]="true" [rows]="10" [totalRecords]="totalRecords"
+    [loading]="loading" [globalFilterFields]="['id','codigo', 'nombre', 'username']">
 
     <ng-template pTemplate="header">
       <tr>
-        <th style="width: 3rem"></th>
-        <th pSortableColumn="id">Id <p-sortIcon field="id"></p-sortIcon>
+        <th></th>
+        <th *ngIf="adminUser" pSortableColumn="id">Id <p-sortIcon field="id"></p-sortIcon>
         </th>
         <th pSortableColumn="codigo">Código <p-sortIcon field="codigo"></p-sortIcon>
         </th>
@@ -33,20 +33,20 @@
         <th style="width: 3rem">
           <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
         </th>
-        <th>
+        <th *ngIf="adminUser" style="width: 11rem">
           <p-columnFilter type="text" field="id"></p-columnFilter>
         </th>
-        <th>
+        <th style="width: 11rem">
           <p-columnFilter type="text" field="codigo"></p-columnFilter>
         </th>
         <th>
           <p-columnFilter type="text" field="nombre"></p-columnFilter>
         </th>
-        <th>
+        <th style="width: 20rem">
           <p-columnFilter type="text" field="username"></p-columnFilter>
         </th>
         <th></th>
-        <th></th>
+        <th style="width: 8rem"></th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-userItem>
@@ -54,8 +54,8 @@
         <td>
           <p-tableCheckbox [value]="userItem"></p-tableCheckbox>
         </td>
-        <td>{{userItem.id}}</td>
-        <td>{{userItem.codigo}}</td>
+        <td *ngIf="adminUser" class="columna-numero">{{ userItem.id | number: '3.0' }}</td>
+        <td class="columna-numero">{{userItem.codigo | number: '3.0' }}</td>
         <td>{{userItem.nombre}}</td>
         <td>{{userItem.username}}</td>
         <td>{{userItem.roles}}</td>
@@ -63,7 +63,7 @@
           <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success mr-2"
             (click)="editUser(userItem)"></button>
           <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"
-            (click)="deleteUser(userItem)"></button>
+            style="margin-left: 0.3rem;" (click)="deleteUser(userItem)"></button>
         </td>
       </tr>
     </ng-template>
@@ -79,31 +79,33 @@
   <ng-template pTemplate="content">
     <div class="field">
       <label for="nombre">Codigo</label>
-      <p-inputNumber id="codigo" [(ngModel)]="user.codigo" ></p-inputNumber>
+      <p-inputNumber id="codigo" [(ngModel)]="user.codigo"></p-inputNumber>
       <small class="p-error" *ngIf="submitted && !user.nombre">Name is required.</small>
     </div>
     <div class="field">
       <label for="nombre">Nombre</label>
-      <input type="text" pInputText id="nombre" [(ngModel)]="user.nombre" required autofocus />
+      <input #nombreInput type="text" pInputText id="nombre" [(ngModel)]="user.nombre" required autofocus
+        (focus)="nombreInput.select()" />
       <small class="p-error" *ngIf="submitted && !user.nombre">Name is required.</small>
     </div>
     <div class="field">
       <label for="username">Username</label>
-      <input type="text" pInputText id="username" [(ngModel)]="user.username" required />
+      <input #usernameInput type="text" pInputText id="username" [(ngModel)]="user.username" required
+        (focus)="usernameInput.select()" />
       <small class="p-error" *ngIf="submitted && !user.username">Userame is required.</small>
     </div>
     <div class="field">
       <label for="unencrypedPassword">Password</label>
-      <input type="text" pInputText id="unencrypedPassword" [(ngModel)]="user.unencryptedPassword" />
+      <input type="password" pInputText id="unencrypedPassword" [(ngModel)]="user.unencryptedPassword" />
     </div>
     <div>
       <p-pickList [source]="dispRoles" [target]="user.roles" [dragdrop]="true">
         <ng-template let-userrol pTemplate="item">
-            <div>
-                <div style="font-size:14px;float:right;margin:15px 5px 0 0">{{userrol}}</div>
-            </div>
+          <div>
+            <div style="font-size:14px;float:right;margin:15px 5px 0 0">{{userrol}}</div>
+          </div>
         </ng-template>
-    </p-pickList>
+      </p-pickList>
     </div>
   </ng-template>
 

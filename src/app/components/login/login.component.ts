@@ -11,10 +11,10 @@ import { Message } from 'primeng//api';
 })
 export class LoginComponent implements OnInit {
 
-  form: FormGroup;
+  form: FormGroup = Object();
   public loginInvalid = false;
   private formSubmitAttempt = false;
-  private returnUrl: string;
+  private returnUrl: string = '';
 
   msgs: Message[] = [];
 
@@ -24,19 +24,14 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private authService: AuthenticationService
   ) {
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
+  }
 
-    // username: ['', Validators.email],
+  async ngOnInit(): Promise<void> {
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
     this.form = this.fb.group({
       username: ['', Validators.required],
       password: ['', Validators.required]
     });
-  }
-
-  async ngOnInit(): Promise<void> {
-    if (this.authService.logged) {
-      this.router.navigate([this.returnUrl]);
-    }
   }
 
   async onSubmit(): Promise<void> {
@@ -46,11 +41,17 @@ export class LoginComponent implements OnInit {
       try {
         const username = this.form.get('username')?.value;
         const password = this.form.get('password')?.value;
-        await this.authService.login(username, password);
+        const loginSuccess = await this.authService.login(username, password);
+        if (loginSuccess) {
+          this.router.navigate([this.returnUrl]);
+        } else {
+          this.loginInvalid = true;
+        }
       } catch (err) {
         this.loginInvalid = true;
       }
     } else {
+      this.loginInvalid = true;
       this.formSubmitAttempt = true;
     }
   }

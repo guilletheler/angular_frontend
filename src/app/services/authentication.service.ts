@@ -36,6 +36,13 @@ export class AuthenticationService {
     return false;
   }
 
+  public get isAdmin(): boolean {
+    if (this.userValue && this.userValue.roles) {
+      return this.userValue.roles.includes('ADMIN');
+    }
+    return false;
+  }
+
   async login(username: string, password: string): Promise<boolean> {
 
     // console.log('intentando login para ' + username + ' al servidor ' + `${environment.apiUrl}/users/authenticate`);
@@ -48,7 +55,6 @@ export class AuthenticationService {
       localStorage.setItem('user', JSON.stringify(usuario));
       console.log('login completado para ' + usuario.username + ' con token ' + usuario.token);
       this.eventService.fireLogEvent(true);
-      this.router.navigate(['home']);
 
       return true;
     } else {

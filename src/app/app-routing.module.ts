@@ -7,35 +7,39 @@ import { PedidosComponent } from './components/pedidos/pedidos.component';
 import { UsuariosComponent } from './components/usuarios/usuarios.component';
 import { AuthGuard } from './guards/auth.guard';
 
-const routes: Routes = [{
-  path: '', component: HomeComponent,
-  canActivate: [AuthGuard],
-  data: { roles: [] }
-},
-{
-  path: 'home', component: HomeComponent,
-  canActivate: [AuthGuard],
-  data: { roles: [] }
-},
-{
-  path: 'login',
-  component: LoginComponent,
-},
-{
-  path: 'pedidos', component: PedidosComponent,
-  canActivate: [AuthGuard],
-  data: { roles: ['USER'] }
-},
-{
-  path: 'cartas', component: CartasComponent,
-  canActivate: [AuthGuard],
-  data: { roles: ['USER'] }
-},
-{
-  path: 'usuarios', component: UsuariosComponent,
-  canActivate: [AuthGuard],
-  data: { roles: ['ADMIN'] }
-}
+const routes: Routes = [
+  {
+    path: 'pedidos', component: PedidosComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['USER'] }
+  },
+  {
+    path: 'cartas', component: CartasComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['USER'] }
+  },
+  {
+    path: 'usuarios', component: UsuariosComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['ADMIN'] }
+  },
+  {
+    path: 'home', component: HomeComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['USER'] }
+  },
+  {
+    path: '', component: HomeComponent,
+    canActivate: [AuthGuard],
+    data: { roles: [] },
+    pathMatch: 'full'
+  },
+  {
+    path: 'login',
+    component: LoginComponent,
+    pathMatch: 'full'
+  },
+  { path: '**', redirectTo: 'login', pathMatch: 'full' }
 ];
 
 @NgModule({
